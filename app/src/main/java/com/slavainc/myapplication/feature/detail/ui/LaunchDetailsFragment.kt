@@ -78,14 +78,6 @@ class LaunchDetailsFragment : BaseBindingFragment<LaunchDetailsFragmentBinding>(
             detailViewModel.checkTrip(args.launchId, isBooked)
 
             observeTrip(isBooked)
-
-//
-//                if (response.hasErrors()) {
-//                    configureButton(isBooked)
-//                    return@launchWhenResumed
-//                }
-//
-//                configureButton(!isBooked)
         }
     }
 

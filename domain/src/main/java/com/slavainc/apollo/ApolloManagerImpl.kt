@@ -4,16 +4,22 @@ import BookTripMutation
 import CancelTripMutation
 import LaunchDetailsQuery
 import LaunchListQuery
+import LoginMutation
+import TripsBookedSubscription
 import com.apollographql.apollo.api.Input
 import com.apollographql.apollo.api.Operation
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.coroutines.await
+import com.apollographql.apollo.coroutines.toFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.retryWhen
 
 class ApolloManagerImpl(private val apolloInitializer: ApolloInitializer) : ApolloManager {
 
-    override suspend fun login() {
-//        apolloInitializer.apolloClient().mutate()
-        TODO("Not yet implemented")
+    override suspend fun login(email: String?): Response<LoginMutation.Data> {
+        return apolloInitializer.apolloClient().mutate(LoginMutation(email = Input.fromNullable(email))).await()
     }
 
     override suspend fun checkTrip(launchId: String, isBooked: Boolean): Response<out Operation.Data> {
@@ -32,4 +38,16 @@ class ApolloManagerImpl(private val apolloInitializer: ApolloInitializer) : Apol
     override suspend fun launchDetails(launchId: String): Response<LaunchDetailsQuery.Data> {
         return apolloInitializer.apolloClient().query(LaunchDetailsQuery(launchId)).await()
     }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun subscribe(callback: (Response<TripsBookedSubscription.Data>) -> Unit) =
+        apolloInitializer.apolloClient().subscribe(TripsBookedSubscription()).toFlow()
+            .retryWhen { _, attempt ->
+                delay(attempt * 1000)
+                true
+            }
+            .collect {
+                callback.invoke(it)
+            }
+
 }

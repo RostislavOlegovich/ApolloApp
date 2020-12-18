@@ -25,7 +25,7 @@ object KoinInjector {
     }
 
     private val repositoryModule = module {
-        factory<MainRepository> { MainRepositoryImpl(get()) }
+        factory<MainRepository> { MainRepositoryImpl(get(),androidContext()) }
     }
 
     private val managerModule = module {

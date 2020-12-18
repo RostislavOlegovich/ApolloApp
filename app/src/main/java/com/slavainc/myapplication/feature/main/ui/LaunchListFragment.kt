@@ -13,6 +13,7 @@ import com.slavainc.myapplication.feature.main.vm.MainViewModel
 import com.slavainc.myapplication.utils.Resource.Status.*
 import com.slavainc.myapplication.utils.observe
 import kotlinx.coroutines.channels.Channel
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class LaunchListFragment : BaseBindingFragment<LaunchListFragmentBinding>() {
@@ -20,7 +21,7 @@ class LaunchListFragment : BaseBindingFragment<LaunchListFragmentBinding>() {
     override val assignLayoutId = R.layout.launch_list_fragment
 
     private lateinit var adapter: LaunchListAdapter
-    private val mainViewModel: MainViewModel by viewModel()
+    private val mainViewModel: MainViewModel by sharedViewModel()
 
     private var cursor: String? = null
 
@@ -30,7 +31,6 @@ class LaunchListFragment : BaseBindingFragment<LaunchListFragmentBinding>() {
         super.onViewCreated(view, savedInstanceState)
         setupAdapter()
 
-        // offer a first item to do the initial load else the list will stay empty forever
         channel.offer(Unit)
         adapter.onEndOfListReached = {
             channel.offer(Unit)
